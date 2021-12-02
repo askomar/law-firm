@@ -1,16 +1,18 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.LawOffice;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.LawOfficeRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LawOfficeRepositoryImpl implements LawOfficeRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(LawOfficeRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final LawOfficeRepositoryImpl INSTANCE = new LawOfficeRepositoryImpl();
@@ -40,7 +42,7 @@ public class LawOfficeRepositoryImpl implements LawOfficeRepository {
                 lawOffice.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'LawOffice'", e.getMessage());
+            LOGGER.error("SQL exception when try to create law office");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -54,7 +56,7 @@ public class LawOfficeRepositoryImpl implements LawOfficeRepository {
             ResultSet rs = preparedStatement.executeQuery();
             lawOffices = mapLawOffices(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'LawOffice'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all law offices");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -72,7 +74,7 @@ public class LawOfficeRepositoryImpl implements LawOfficeRepository {
                 lawOffice = mapLawOffice(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'LawOffice'", e.getMessage());
+            LOGGER.error("SQL exception when try to find law office by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -90,7 +92,7 @@ public class LawOfficeRepositoryImpl implements LawOfficeRepository {
                 preparedStatement.setLong(3, lawOffice.getId());
                 row = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'LawOffice'", e.getMessage());
+                LOGGER.error("SQL exception when try to update law office");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -107,7 +109,7 @@ public class LawOfficeRepositoryImpl implements LawOfficeRepository {
                 preparedStatement.setLong(1, lawOffice.getId());
                 row = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'LawOffice'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete law office");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

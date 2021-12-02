@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.ServiceTypeRepository">
+
+    <sql id="serviceTypeColumns">
+        service_type.id as service_type_id,
+        service_type.name as service_type_name
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Service_types (name)
+        values (#{name});
+    </insert>
+
+    <select id="findAll" resultMap="ServiceTypeMap">
+        select
+        <include refid="serviceTypeColumns"/>
+        from Service_types service_type;
+    </select>
+
+    <select id="findById"
+            parameterType="java.lang.Long"
+            resultMap="ServiceTypeMap">
+        select
+        <include refid="serviceTypeColumns"/>
+        from Service_types service_type
+        where service_type.id = #{id};
+    </select>
+
+    <update
+            id="update"
+            parameterType="ServiceType">
+        update Service_types set
+        name = #{name}
+        where id = #{id};
+    </update>
+
+    <delete id="delete"
+            parameterType="ServiceType">
+        delete from Service_types where id = #{id};
+    </delete>
+
+    <resultMap id="ServiceTypeMap" type="ServiceType" autoMapping="false">
+        <id property="id" column="service_type_id"/>
+        <result property="name" column="service_type_name"/>
+    </resultMap>
+</mapper>

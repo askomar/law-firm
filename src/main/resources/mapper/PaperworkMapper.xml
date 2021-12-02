@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.PaperworkRepository">
+
+    <sql id="paperworkColumns">
+        paperwork.id as p_id,
+        paperwork.title as p_title,
+        paperwork.url as p_url,
+        paperwork.type_id as paperwork_type_id,
+        paperwork.client_folder_id as folder_id,
+        paperwork.court_id as court_id,
+        paperwork.judge_id as judge_id
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Paperworks ( type_id, client_folder_id, court_id, judge_id, title, url)
+        values ( #{type.id}, #{folder.id}, #{court.id}, #{judge.id}, #{title}, #{url});
+    </insert>
+
+    <select id="findAll" resultMap="PaperworkMap">
+        select
+        <include refid="paperworkColumns"/>
+        from Paperworks paperwork
+        left join
+        Paperwork_types paperwork_type
+        on paperwork.type_id = paperwork_type.id
+        left join Client_folders client_folder
+        on
+        paperwork.client_folder_id = client_folder.id
+        left join Courts court
+        on
+        paperwork.court_id = court.id
+        left join Judges judge
+        on
+        paperwork.judge_id = judge.id;
+    </select>
+
+    <select id="findById"
+            parameterType="java.lang.Long"
+            resultMap="PaperworkMap">
+        select
+        <include refid="paperworkColumns"/>
+        from Paperworks paperwork
+        where paperwork.id = #{id}
+    </select>
+
+    <update id="update"
+            parameterType="Paperwork">
+        update Paperworks set
+        type_id = #{type.id},
+        client_folder_id = #{folder.id},
+        court_id = #{court.id},
+        judge_id = #{judge.id},
+        title = #{title},
+        url = #{url}
+        where id = #{id};
+    </update>
+
+    <delete id="delete"
+            parameterType="Paperwork">
+        delete from Paperworks where id = #{id};
+    </delete>
+
+    <resultMap id="PaperworkMap" type="Paperwork" autoMapping="false">
+        <id property="id" column="p_id"/>
+        <result property="title" column="p_title"/>
+        <result property="url" column="p_url"/>
+        <association property="type" column="paperwork_type_id"
+                     resultMap="com.solvd.lawfirm.persistence.PaperworkTypeRepository.PaperWorkTypeMap"/>
+        <association property="folder" column="folder_id"
+                     resultMap="com.solvd.lawfirm.persistence.ClientFolderRepository.ClientFolderMap"/>
+        <association property="court" column="court_id"
+                     resultMap="com.solvd.lawfirm.persistence.CourtRepository.CourtMap"/>
+        <association property="judge" column="judge_id"
+                     resultMap="com.solvd.lawfirm.persistence.JudgeRepository.JudgeMap"/>
+    </resultMap>
+</mapper>

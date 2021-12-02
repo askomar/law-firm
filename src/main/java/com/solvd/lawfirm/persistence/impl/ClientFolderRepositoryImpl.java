@@ -2,11 +2,11 @@ package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.ClientFolder;
 import com.solvd.lawfirm.domain.ClientFolderStatus;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ClientFolderRepository;
 import com.solvd.lawfirm.persistence.ClientRepository;
 import com.solvd.lawfirm.persistence.ConnectionPool;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class ClientFolderRepositoryImpl implements ClientFolderRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(ClientFolderRepositoryImpl.class);
 
     private static final ClientFolderRepositoryImpl INSTANCE = new ClientFolderRepositoryImpl();
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
@@ -26,7 +28,6 @@ public class ClientFolderRepositoryImpl implements ClientFolderRepository {
     private static final String FIND_BY_ID = FIND_ALL_QUERY + " where id = ?";
     private static final String UPDATE_QUERY = "update Client_folders set client_id= ?, `status` = ? where id = ?";
     private static final String DELETE_QUERY = "delete from Client_folders where id = ?";
-
 
     private ClientFolderRepositoryImpl() {
     }
@@ -48,7 +49,7 @@ public class ClientFolderRepositoryImpl implements ClientFolderRepository {
                 clientFolder.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'ClientFolder'", e.getMessage());
+            LOGGER.error("SQL exception when try to create client folder");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -62,7 +63,8 @@ public class ClientFolderRepositoryImpl implements ClientFolderRepository {
             ResultSet rs = preparedStatement.executeQuery();
             clientFolders = mapClientFolders(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'ClientFolder'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all client folders");
+
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -80,7 +82,8 @@ public class ClientFolderRepositoryImpl implements ClientFolderRepository {
                 clientFolder = mapClientFolder(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'ClientFolder'", e.getMessage());
+            LOGGER.error("SQL exception when try to find client folder by id");
+
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -97,7 +100,8 @@ public class ClientFolderRepositoryImpl implements ClientFolderRepository {
                 preparedStatement.setLong(2, clientFolder.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'ClientFolder'", e.getMessage());
+                LOGGER.error("SQL exception when try to update client folder");
+
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -114,7 +118,7 @@ public class ClientFolderRepositoryImpl implements ClientFolderRepository {
                 preparedStatement.setLong(1, clientFolder.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'ClientFolder'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete client folder");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

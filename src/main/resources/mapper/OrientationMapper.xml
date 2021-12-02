@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.OrientationRepository">
+
+    <sql id="orientationColumns">
+        orientation.id as orientation_id,
+        orientation.lawyer_id as orientation_lawyer_id,
+        orientation.activity_sphere_id as orientation_activity_sphere_id
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Orientations (lawyer_id, activity_sphere_id)
+        values (#{lawyer.id}, #{lawyerActivitySphere.id});
+    </insert>
+
+    <select id="findAll" resultMap="OrientationMap">
+        select
+        <include refid="orientationColumns"/>,
+        <include refid="com.solvd.lawfirm.persistence.LawyerRepository.lawyerColumns"/>,
+        <include refid="com.solvd.lawfirm.persistence.LawyerActivitySphereRepository.lawyerActivitySphereColumns"/>
+        from Orientations orientation
+        left join Lawyers lawyer
+        on orientation.lawyer_id = lawyer.id
+        left join Lawyer_activity_spheres activity_sphere
+        on orientation.activity_sphere_id = activity_sphere.id;
+    </select>
+
+    <select id="findById"
+            parameterType="java.lang.Long"
+            resultMap="OrientationMap">
+        select
+        <include refid="orientationColumns"/>
+        from Orientations orientation
+        where orientation.id = #{id};
+    </select>
+
+    <update
+            id="update"
+            parameterType="Orientation">
+        update Orientations set
+        lawyer_id = #{lawyer.id},
+        activity_sphere_id = #{lawyerActivitySphere.id}
+        where id = #{id};
+    </update>
+
+    <delete id="delete"
+            parameterType="Orientation">
+        delete from Orientations where id = #{id};
+    </delete>
+
+    <resultMap id="OrientationMap" type="Orientation" autoMapping="false">
+        <id property="id" column="orientation_id"/>
+        <association property="lawyer" column="orientation_lawyer_id"
+                     resultMap="com.solvd.lawfirm.persistence.LawyerRepository.LawyerMap"/>
+        <association property="lawyerActivitySphere" column="orientation_activity_sphere_id"
+                     resultMap="com.solvd.lawfirm.persistence.LawyerActivitySphereRepository.LawyerActivitySphereMap"/>
+    </resultMap>
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.LawOfficeRepository">
+
+    <sql id="lawOfficeColumns">
+        office.id as law_office_id,
+        office.name as office_name,
+        office.address as office_address
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Law_offices
+        (name, address)
+        values (#{name}, #{address});
+    </insert>
+
+    <select id="findAll" resultMap="LawOfficeMap">
+        select
+        <include refid="lawOfficeColumns"/>
+        from Law_offices office;
+    </select>
+
+    <select id="findById" parameterType="java.lang.Long" resultMap="LawOfficeMap">
+        select
+        <include refid="lawOfficeColumns"/>
+        from Law_offices office
+        where id = #{id};
+    </select>
+
+    <update id="update">
+        update Law_offices set
+        name = #{name},
+        address = #{address}
+        where id = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from Law_offices where id = #{id};
+    </delete>
+
+    <resultMap id="LawOfficeMap" type="LawOffice" autoMapping="false">
+        <id property="id" column="law_office_id"/>
+        <result property="name" column="office_name"/>
+        <result property="address" column="office_address"/>
+    </resultMap>
+
+</mapper>

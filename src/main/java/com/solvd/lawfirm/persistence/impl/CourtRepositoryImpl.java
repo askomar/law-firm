@@ -1,17 +1,19 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.Court;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.CourtRepository;
 import com.solvd.lawfirm.persistence.CourtTypeRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourtRepositoryImpl implements CourtRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(CourtRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final CourtRepositoryImpl INSTANCE = new CourtRepositoryImpl();
@@ -45,7 +47,7 @@ public class CourtRepositoryImpl implements CourtRepository {
                 court.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'CourtRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to create court");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -59,7 +61,8 @@ public class CourtRepositoryImpl implements CourtRepository {
             ResultSet rs = preparedStatement.executeQuery();
             courts = mapCourts(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAdd'", "'CourtRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all courts");
+
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -77,7 +80,8 @@ public class CourtRepositoryImpl implements CourtRepository {
                 court = mapCourt(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'CourtRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to find court by id");
+
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -96,7 +100,7 @@ public class CourtRepositoryImpl implements CourtRepository {
                 preparedStatement.setLong(4, court.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'CourtRepository'", e.getMessage());
+                LOGGER.error("SQL exception when try to update court");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -113,7 +117,7 @@ public class CourtRepositoryImpl implements CourtRepository {
                 preparedStatement.setLong(1, court.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'CourtRepository'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete court");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

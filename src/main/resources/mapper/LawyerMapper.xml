@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.LawyerRepository">
+
+    <sql id="lawyerColumns">
+        lawyer.id as lawyer_id,
+        lawyer.law_office_id as law_office_id,
+        lawyer.surname as lawyer_surname,
+        lawyer.name as lawyer_name,
+        lawyer.patronymic as lawyer_patronymic,
+        lawyer.dob as lawyer_dob,
+        lawyer.experience_since as lawyer_experience_since
+    </sql>
+
+    <insert id="create" keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Lawyers
+        (law_office_id, surname, name, patronymic, dob, experience_since)
+        values (#{lawOffice.id}, #{surname}, #{name}, #{patronymic}, #{dob}, #{experienceSince});
+    </insert>
+
+    <select id="findAll" resultMap="LawyerMap">
+        select
+        <include refid="lawyerColumns"/>,
+        <include refid="com.solvd.lawfirm.persistence.LawOfficeRepository.lawOfficeColumns"/>
+        from Lawyers lawyer
+        left join Law_offices office
+        on
+        lawyer.law_office_id = office.id;
+    </select>
+
+    <select id="findById" parameterType="java.lang.Long" resultMap="LawyerMap">
+        select
+        <include refid="lawyerColumns"/>
+        from Lawyers lawyer
+        where lawyer.id = #{id};
+    </select>
+
+    <update id="update" parameterType="Lawyer">
+        update Lawyers set
+        law_office_id = #{lawOffice.id},
+        surname = #{surname},
+        name = #{name},
+        patronymic = #{patronymic},
+        dob = #{dob},
+        experience_since = #{experienceSince}
+        where id = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from Lawyers where id = #{id};
+    </delete>
+
+    <resultMap id="LawyerMap" type="Lawyer" autoMapping="false">
+        <id property="id" column="lawyer_id"/>
+        <result property="surname" column="lawyer_surname"/>
+        <result property="name" column="lawyer_name"/>
+        <result property="patronymic" column="lawyer_patronymic"/>
+        <result property="dob" column="lawyer_dob"/>
+        <result property="experienceSince" column="lawyer_experience_since"/>
+        <association property="lawOffice" column="law_office_id"
+                     resultMap="com.solvd.lawfirm.persistence.LawOfficeRepository.LawOfficeMap"/>
+    </resultMap>
+</mapper>

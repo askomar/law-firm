@@ -1,16 +1,18 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.Client;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ClientRepository;
 import com.solvd.lawfirm.persistence.ConnectionPool;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientRepositoryImpl implements ClientRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(ClientRepositoryImpl.class);
 
     private static final ClientRepositoryImpl INSTANCE = new ClientRepositoryImpl();
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
@@ -44,7 +46,7 @@ public class ClientRepositoryImpl implements ClientRepository {
                 client.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'ClientRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to create client");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -58,7 +60,8 @@ public class ClientRepositoryImpl implements ClientRepository {
             ResultSet rs = preparedStatement.executeQuery();
             clients = mapClients(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'ClientRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all clients");
+
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -76,7 +79,7 @@ public class ClientRepositoryImpl implements ClientRepository {
                 client = mapClient(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'ClientRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to find client by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -97,7 +100,8 @@ public class ClientRepositoryImpl implements ClientRepository {
                 preparedStatement.setLong(6, client.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'ClientRepository'", e.getMessage());
+                LOGGER.error("SQL exception when try to update client");
+
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -114,7 +118,7 @@ public class ClientRepositoryImpl implements ClientRepository {
                 preparedStatement.setLong(1, client.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'ClientRepository'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete client");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
