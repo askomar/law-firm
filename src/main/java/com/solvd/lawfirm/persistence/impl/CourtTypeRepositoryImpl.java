@@ -1,16 +1,18 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.CourtType;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.CourtTypeRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourtTypeRepositoryImpl implements CourtTypeRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(CourtTypeRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final CourtTypeRepositoryImpl INSTANCE = new CourtTypeRepositoryImpl();
@@ -40,7 +42,7 @@ public class CourtTypeRepositoryImpl implements CourtTypeRepository {
                 courtType.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'CourtTypeRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to create court type");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -54,7 +56,7 @@ public class CourtTypeRepositoryImpl implements CourtTypeRepository {
             ResultSet rs = preparedStatement.executeQuery();
             courtTypes = mapCourtTypes(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'CourtTypeRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all court types");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -72,7 +74,7 @@ public class CourtTypeRepositoryImpl implements CourtTypeRepository {
                 courtType = mapCourtType(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'CourtTypeRepository'", e.getMessage());
+            LOGGER.error("SQL exception when try to find court type by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -89,7 +91,7 @@ public class CourtTypeRepositoryImpl implements CourtTypeRepository {
                 preparedStatement.setLong(2, courtType.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'CourtTypeRepository'", e.getMessage());
+                LOGGER.error("SQL exception when try to update court type");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -106,7 +108,7 @@ public class CourtTypeRepositoryImpl implements CourtTypeRepository {
                 preparedStatement.setLong(1, courtType.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'CourtTypeRepository'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete court type");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

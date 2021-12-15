@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.CourtTypeRepository">
+
+    <sql id="courtTypeColumns">
+        court_type.id as court_type_id,
+        court_type.name as court_type_name
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Court_types
+        (name)
+        values
+        (#{name});
+    </insert>
+
+    <select id="findAll" resultMap="CourtTypeMap">
+        select
+        <include refid="courtTypeColumns"/>
+        from Court_types court_type;
+    </select>
+
+
+    <select id="findById"
+            parameterType="java.lang.Long"
+            resultMap="CourtTypeMap">
+        select
+        <include refid="courtTypeColumns"/>
+        from Court_types court_type
+        where court_type.id = #{id};
+    </select>
+
+    <update id="update" parameterType="CourtType">
+        update Court_types set
+        name = #{name}
+        where id = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from Court_types where id = #{id};
+    </delete>
+
+    <resultMap id="CourtTypeMap" type="CourtType" autoMapping="false">
+        <id property="id" column="court_type_id"/>
+        <result property="name" column="court_type_name"/>
+    </resultMap>
+</mapper>

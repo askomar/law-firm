@@ -1,16 +1,18 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.LawyerActivitySphere;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.LawyerActivitySphereRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LawyerActivitySphereRepositoryImpl implements LawyerActivitySphereRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(LawyerActivitySphereRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final LawyerActivitySphereRepositoryImpl INSTANCE = new LawyerActivitySphereRepositoryImpl();
@@ -40,7 +42,7 @@ public class LawyerActivitySphereRepositoryImpl implements LawyerActivitySphereR
                 lawyerActivitySphere.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'LawyerActivitySphere'", e.getMessage());
+            LOGGER.error("SQL exception when try to create lawyer activity sphere");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -54,7 +56,7 @@ public class LawyerActivitySphereRepositoryImpl implements LawyerActivitySphereR
             ResultSet rs = preparedStatement.executeQuery();
             lawyerActivitySpheres = mapLawyerActivitySpheres(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'LawyerActivitySphere'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all lawyer activity spheres");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -72,7 +74,7 @@ public class LawyerActivitySphereRepositoryImpl implements LawyerActivitySphereR
                 lawyerActivitySphere = mapLawyerActivitySphere(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'LawyerActivitySphere'", e.getMessage());
+            LOGGER.error("SQL exception when try to find lawyer activity sphere by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -89,7 +91,7 @@ public class LawyerActivitySphereRepositoryImpl implements LawyerActivitySphereR
                 preparedStatement.setLong(2, lawyerActivitySphere.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'LawyerActivitySphere'", e.getMessage());
+                LOGGER.error("SQL exception when try to update lawyer activity sphere");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -106,7 +108,7 @@ public class LawyerActivitySphereRepositoryImpl implements LawyerActivitySphereR
                 preparedStatement.setLong(1, lawyerActivitySphere.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'LawyerActivitySphere'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete lawyer activity sphere");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

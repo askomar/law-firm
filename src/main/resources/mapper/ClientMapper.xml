@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.ClientRepository">
+
+    <sql id="clientColumns">
+        client.id as client_id,
+        client.surname as client_surname,
+        client.name as client_name,
+        client.patronymic as client_patronymic,
+        client.dob as client_dob,
+        client.telephone as client_telephone
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Clients
+        ( surname, name, patronymic, dob, telephone)
+        values (#{surname}, #{name}, #{patronymic}, #{dob}, #{telephone});
+    </insert>
+
+    <select id="findAll" resultMap="ClientMap">
+        select
+        <include refid="clientColumns"/>
+        from Clients client;
+    </select>
+
+    <select id="findById"
+            parameterType="java.lang.Long"
+            resultMap="ClientMap">
+        select
+        <include refid="clientColumns"/>
+        from Clients client
+        where client.id = #{id};
+    </select>
+
+    <update id="update" parameterType="Client">
+        update Clients set
+        surname = #{surname},
+        `name` = #{name},
+        patronymic = #{patronymic},
+        dob = #{dob},
+        telephone = #{telephone}
+        where id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from Clients where id = #{id}
+    </delete>
+
+    <resultMap id="ClientMap" type="Client" autoMapping="false">
+        <id property="id" column="client_id"/>
+        <result property="surname" column="client_surname"/>
+        <result property="name" column="client_name"/>
+        <result property="patronymic" column="client_patronymic"/>
+        <result property="dob" column="client_dob"/>
+        <result property="telephone" column="client_telephone"/>
+    </resultMap>
+</mapper>

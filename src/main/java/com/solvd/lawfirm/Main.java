@@ -1,10 +1,12 @@
 package com.solvd.lawfirm;
 
 import com.solvd.lawfirm.domain.*;
-import com.solvd.lawfirm.service.CourtTypeService;
-import com.solvd.lawfirm.service.ServiceService;
-import com.solvd.lawfirm.service.impl.CourtTypeServiceImpl;
-import com.solvd.lawfirm.service.impl.ServiceServiceImpl;
+import com.solvd.lawfirm.domain.exception.ParameterIsEmpty;
+import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
+import com.solvd.lawfirm.service.*;
+import com.solvd.lawfirm.service.impl.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,6 +16,9 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
+
+        Logger logger = LogManager.getLogger(Main.class);
+
         List<LawOffice> lawOffices = Arrays.asList(
                 createLawOffice("Маслов, Гашинский и партнеры", "улица Пушкина, дом 10"),
                 createLawOffice("Белорусская республиканская коллегия адвокатов", "улица Коллекторная, дом 10"),
@@ -140,24 +145,284 @@ public class Main {
         );
 
         /**
-         * ########################################################################################################
+         * ############################################################################################################
+         *  Law office CRUD
          */
+        try {
+            LawOfficeService lawOfficeService = LawOfficeServiceImpl.getInstance();
+            lawOffices.stream()
+                    .forEach(lawOffice -> {
+                        try {
+                            lawOfficeService.create(lawOffice);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by law offices");
+                        }
+                    });
 
-        ServiceService serviceService = new ServiceServiceImpl();
-        services
-                .forEach(serviceService::create);
-        System.out.println(Arrays.toString(serviceService.findAll().toArray()));
+            List<LawOffice> allOffices = lawOfficeService.findAll();
 
-        CourtTypeService courtTypeService = new CourtTypeServiceImpl();
-        courtTypeService.findAll()
-                .forEach((courtType -> {
-                    courtType.setName(courtType.getName() + " UPDATED");
-                    courtTypeService.update(courtType);
-                }));
-        System.out.println(courtTypeService.findById(3L));
+            LawOffice oneOffice = lawOfficeService.findById(allOffices.get(3).getId());
 
-        serviceService.findAll()
-                .forEach(serviceService::delete);
+            oneOffice.setAddress("MODIFIED");
+            oneOffice.setName("MODIFIED");
+            int updateOfficeResult = lawOfficeService.update(oneOffice);
+
+            //int deleteOfficeResult = lawOfficeService.delete(oneOffice);
+
+            /**
+             * Lawyer's CRUD
+             */
+            LawyerService lawyerService = LawyerServiceImpl.getInstance();
+            lawyers.stream()
+                    .forEach(lawyer -> {
+                        try {
+                            lawyerService.create(lawyer, oneOffice.getId());
+                        } catch (ParameterIsEmpty | ResourceNotFoundException e) {
+                            logger.error("Exception when try to initialise db by lawyers");
+                        }
+                    });
+
+            List<Lawyer> allLawyers = lawyerService.findAll();
+
+            Lawyer oneLawyer = lawyerService.findById(allLawyers.get(3).getId());
+
+            oneLawyer.setName("MODIFIED");
+            oneLawyer.setPatronymic("MODIFIED");
+            int updateLawyerResult = lawyerService.update(oneLawyer);
+
+            //  int deleteLawyerResult = lawyerService.delete(oneLawyer);
+
+            /**
+             * LawyerActivitySpheres CRUD
+             */
+            LawyerActivitySphereService lawyerActivitySphereService = LawyerActivitySphereServiceImpl.getInstance();
+            lawyerActivitySpheres.stream()
+                    .forEach(sphere -> {
+                        try {
+                            lawyerActivitySphereService.create(sphere);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by lawyer activity spheres");
+                        }
+                    });
+
+            List<LawyerActivitySphere> allActivitySpheres = lawyerActivitySphereService.findAll();
+
+            LawyerActivitySphere oneActivitySphere = lawyerActivitySphereService.findById(allActivitySpheres.get(3).getId());
+
+            oneActivitySphere.setName("MODIFIED");
+            int updateActivitySphereResult = lawyerActivitySphereService.update(oneActivitySphere);
+
+            //  int deleteActivitySphereResult = lawyerActivitySphereService.delete(oneActivitySphere);
+
+            /**
+             * Orientation CRUD
+             */
+            OrientationService orientationService = OrientationServiceImpl.getInstance();
+            orientations.stream()
+                    .forEach(orientation -> {
+                        try {
+                            orientationService.create(orientation, oneLawyer.getId(), oneActivitySphere.getId());
+                        } catch (ParameterIsEmpty | ResourceNotFoundException e) {
+                            logger.error("Exception when try to initialise db by orientations");
+                        }
+                    });
+
+            List<Orientation> allOrientations = orientationService.findAll();
+
+            Orientation oneOrientation = orientationService.findById(allOrientations.get(3).getId());
+
+            oneOrientation.setLawyer(oneLawyer);
+            oneOrientation.setLawyerActivitySphere(oneActivitySphere);
+            int updateOrientationResult = orientationService.update(oneOrientation);
+
+            //    int deleteOrientationResult = orientationService.delete(oneOrientation);
+
+            /**
+             * Service Type CRUD
+             */
+
+            ServiceTypeService serviceTypeService = ServiceTypeServiceImpl.getInstance();
+            serviceTypes.stream()
+                    .forEach(serviceType -> {
+                        try {
+                            serviceTypeService.create(serviceType);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by service types");
+                        }
+                    });
+
+            List<ServiceType> allServiceTypes = serviceTypeService.findAll();
+
+            ServiceType oneServiceType = serviceTypeService.findById(allServiceTypes.get(3).getId());
+
+            oneServiceType.setName("MODIFIED");
+            int updateServiceTypeResult = serviceTypeService.update(oneServiceType);
+
+            // int deleteServiceTypeResult = serviceTypeService.delete(oneServiceType);
+
+            /**
+             * Client CRUD
+             */
+            ClientService clientService = ClientServiceImpl.getInstance();
+            clients.stream()
+                    .forEach(client -> {
+                        try {
+                            clientService.create(client);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by client services");
+                        }
+                    });
+
+            List<Client> allClients = clientService.findAll();
+
+            Client oneClient = clientService.findById(allClients.get(3).getId());
+
+            oneClient.setSurname("MODIFIED");
+            oneClient.setName("MODIFIED");
+            int updateClientResult = clientService.update(oneClient);
+
+            // int deleteClientResult = clientService.delete(oneClient);
+
+
+            /**
+             * ClientFolder CRUD
+             */
+            ClientFolderService clientFolderService = ClientFolderServiceImpl.getInstance();
+            clientFolders.stream()
+                    .forEach(folder -> {
+                        try {
+                            clientFolderService.create(folder, oneClient.getId());
+                        } catch (ParameterIsEmpty | ResourceNotFoundException e) {
+                            logger.error("Exception when try to initialise db by client folders");
+                        }
+                    });
+
+            List<ClientFolder> allClientFolders = clientFolderService.findAll();
+
+            ClientFolder oneClientFolder = clientFolderService.findById(allClientFolders.get(3).getId());
+
+            oneClientFolder.setStatus(ClientFolderStatus.ACTIVE);
+            int updateClientFolderResult = clientFolderService.update(oneClientFolder);
+
+            // int deleteClientFolderResult = clientFolderService.delete(oneClientFolder);
+
+            /**
+             * Paperwork types CRUD
+             */
+            PaperworkTypeService paperworkTypeService = PaperworkTypeServiceImpl.getInstance();
+            paperWorkTypes.stream()
+                    .forEach(paperWorkType -> {
+                        try {
+                            paperworkTypeService.create(paperWorkType);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by paperwork types");
+                        }
+                    });
+
+            List<PaperWorkType> allPaperworkTypes = paperworkTypeService.findAll();
+
+            PaperWorkType onePaperworkType = paperworkTypeService.findById(allPaperworkTypes.get(3).getId());
+
+            onePaperworkType.setName("MODIFIED");
+            int updatePaperworkTypeResult = paperworkTypeService.update(onePaperworkType);
+
+            // int deletePaperworkTypeResult = paperworkTypeService.delete(onePaperworkType);
+
+            /**
+             * CourtType CRUD
+             */
+            CourtTypeService courtTypeService = CourtTypeServiceImpl.getInstance();
+            courtTypes.stream()
+                    .forEach(courtType -> {
+                        try {
+                            courtTypeService.create(courtType);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by court type services");
+                        }
+                    });
+
+            List<CourtType> allCourtTypes = courtTypeService.findAll();
+
+            CourtType oneCourtType = courtTypeService.findById(allCourtTypes.get(3).getId());
+
+            oneCourtType.setName("MODIFIED");
+            int updateCourtTypeResult = courtTypeService.update(oneCourtType);
+
+            // int deleteCourtTypeResult = courtTypeService.delete(oneCourtType);
+
+            /**
+             * Judge CRUD
+             */
+            JudgeService judgeService = JudgeServiceImpl.getInstance();
+            judges.stream()
+                    .forEach(judge -> {
+                        try {
+                            judgeService.create(judge);
+                        } catch (ParameterIsEmpty e) {
+                            logger.error("Exception when try to initialise db by judges");
+                        }
+                    });
+
+            List<Judge> allJudges = judgeService.findAll();
+
+            Judge oneJudge = judgeService.findById(allJudges.get(3).getId());
+
+            oneJudge.setSurname("MODIFIED");
+            oneJudge.setName("MODIFIED");
+            int updateJudgeResult = judgeService.update(oneJudge);
+
+            // int deleteJudgeResult = judgeService.delete(oneJudge);
+
+            /**
+             * Court CRUD
+             */
+            CourtService courtService = CourtServiceImpl.getInstance();
+            courts.stream()
+                    .forEach(court -> {
+                        try {
+                            courtService.create(court, oneCourtType.getId());
+                        } catch (ParameterIsEmpty | ResourceNotFoundException e) {
+                            logger.error("Exception when try to initialise db by courts");
+                        }
+                    });
+
+            List<Court> allCourts = courtService.findAll();
+
+            Court oneCourt = courtService.findById(allCourts.get(3).getId());
+
+            oneCourt.setAddress("MODIFIED");
+            oneCourt.setName("MODIFIED");
+            int updateCourtResult = courtService.update(oneCourt);
+
+            // int deleteCourtResult = courtService.delete(oneCourt);
+
+            /**
+             * Paperwork CRUD
+             */
+            PaperworkService paperworkService = PaperworkServiceImpl.getInstance();
+            paperworks.stream()
+                    .forEach(paperwork -> {
+                        try {
+                            paperworkService.create(paperwork, onePaperworkType.getId(), oneClientFolder.getId(), oneCourt.getId(), oneJudge.getId());
+                        } catch (ParameterIsEmpty | ResourceNotFoundException e) {
+                            logger.error("Exception when try to initialise db by paperworks");
+
+                        }
+                    });
+
+            List<Paperwork> allPaperworks = paperworkService.findAll();
+
+            Paperwork onePaperwork = paperworkService.findById(allPaperworks.get(3).getId());
+
+            onePaperwork.setTitle("MODIFIED");
+            onePaperwork.setUrl("MODIFIED");
+            int updatePaperworkResult = paperworkService.update(onePaperwork);
+
+            //  int deletePaperworkResult = paperworkService.delete(onePaperwork);
+
+        } catch (ParameterIsEmpty | ResourceNotFoundException parameterIsEmpty) {
+            logger.error(parameterIsEmpty);
+        }
     }
 
     private static LawOffice createLawOffice(String name, String address) {

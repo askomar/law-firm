@@ -1,15 +1,17 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.Service;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceRepositoryImpl implements ServiceRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(ServiceRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final ServiceRepositoryImpl INSTANCE = new ServiceRepositoryImpl();
@@ -45,7 +47,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
                 service.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'Service'", e.getMessage());
+            LOGGER.error("SQL exception when try to create service");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -59,7 +61,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
             ResultSet rs = preparedStatement.executeQuery();
             services = mapServices(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'Service'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all services");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -77,7 +79,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
                 service = mapService(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'Service'", e.getMessage());
+            LOGGER.error("SQL exception when try to find service by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -97,7 +99,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
                 preparedStatement.setLong(5, service.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'Service'", e.getMessage());
+                LOGGER.error("SQL exception when try to update service");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -114,7 +116,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
                 preparedStatement.setLong(1, service.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'Service'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete service");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

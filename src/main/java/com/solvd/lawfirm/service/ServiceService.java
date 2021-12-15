@@ -1,18 +1,22 @@
 package com.solvd.lawfirm.service;
 
 import com.solvd.lawfirm.domain.Service;
+import com.solvd.lawfirm.domain.exception.ParameterIsEmpty;
+import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 
 import java.util.List;
 
 public interface ServiceService {
 
-    void create(Service service);
+    void create(Service service, Long serviceTypeId, Long lawyerId) throws ParameterIsEmpty, ResourceNotFoundException;
 
-    List<Service> findAll();
+    void create(Service service, Long serviceTypeId, Long lawyerId, Long paperworkId) throws ParameterIsEmpty, ResourceNotFoundException;
 
-    Service findById(Long id);
+    List<Service> findAll() throws ResourceNotFoundException;
 
-    int update(Service service);
+    Service findById(Long id) throws ResourceNotFoundException;
 
-    int delete(Service service);
+    int update(Service service) throws ParameterIsEmpty, ResourceNotFoundException;
+
+    int delete(Service service) throws ParameterIsEmpty;
 }

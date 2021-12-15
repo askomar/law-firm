@@ -1,18 +1,20 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.Orientation;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.LawyerActivitySphereRepository;
 import com.solvd.lawfirm.persistence.LawyerRepository;
 import com.solvd.lawfirm.persistence.OrientationRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrientationRepositoryImpl implements OrientationRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(OrientationRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final OrientationRepositoryImpl INSTANCE = new OrientationRepositoryImpl();
@@ -45,7 +47,7 @@ public class OrientationRepositoryImpl implements OrientationRepository {
                 orientation.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'Orientation'", e.getMessage());
+            LOGGER.error("SQL exception when try to create orientation");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -59,7 +61,7 @@ public class OrientationRepositoryImpl implements OrientationRepository {
             ResultSet rs = preparedStatement.executeQuery();
             orientations = mapOrientations(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'Orientation'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all orientations");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -77,7 +79,7 @@ public class OrientationRepositoryImpl implements OrientationRepository {
                 orientation = mapOrientation(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'Orientation'", e.getMessage());
+            LOGGER.error("SQL exception when try to find orientation by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -95,7 +97,7 @@ public class OrientationRepositoryImpl implements OrientationRepository {
                 preparedStatement.setLong(3, orientation.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'Orientation'", e.getMessage());
+                LOGGER.error("SQL exception when try to update orientation");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -112,7 +114,7 @@ public class OrientationRepositoryImpl implements OrientationRepository {
                 preparedStatement.setLong(1, orientation.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'Orientation'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete orientation");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

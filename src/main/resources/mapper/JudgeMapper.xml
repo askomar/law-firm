@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.JudgeRepository">
+    <sql id="judgeColumns">
+        judge.id as judge_id,
+        judge.surname as judge_surname,
+        judge.name as judge_name,
+        judge.patronymic as judge_patronymic,
+        judge.dob as judge_dob,
+        judge.experience_since as judge_experience_since
+    </sql>
+
+    <insert id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Judges
+        (surname, `name`, patronymic, dob, experience_since)
+        values (#{surname}, #{name},#{patronymic},#{dob},#{experienceSince});
+    </insert>
+
+    <select id="findAll" resultMap="JudgeMap">
+        select
+        <include refid="judgeColumns"/>
+        from Judges judge;
+    </select>
+
+
+    <select id="findById" parameterType="java.lang.Long" resultMap="JudgeMap">
+        select
+        <include refid="judgeColumns"/>
+        from Judges judge
+        where judge.id = #{id};
+    </select>
+
+    <update id="update" parameterType="Judge">
+        update Judges set
+        surname = #{surname},
+        name = #{name},
+        patronymic = #{patronymic},
+        dob = #{dob},
+        experience_since = #{experienceSince}
+        where id = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from Judges where id = #{id};
+    </delete>
+
+    <resultMap id="JudgeMap" type="Judge" autoMapping="false">
+        <id property="id" column="judge_id"/>
+        <result property="surname" column="judge_surname"/>
+        <result property="name" column="judge_name"/>
+        <result property="patronymic" column="judge_patronymic"/>
+        <result property="dob" column="judge_dob"/>
+        <result property="experienceSince" column="judge_experience_since"/>
+    </resultMap>
+</mapper>

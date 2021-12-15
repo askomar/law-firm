@@ -1,16 +1,18 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.ServiceType;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.ServiceTypeRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceTypeRepositoryImpl implements ServiceTypeRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(ServiceTypeRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final ServiceTypeRepositoryImpl INSTANCE = new ServiceTypeRepositoryImpl();
@@ -40,7 +42,7 @@ public class ServiceTypeRepositoryImpl implements ServiceTypeRepository {
                 serviceType.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'ServiceType'", e.getMessage());
+            LOGGER.error("SQL exception when try to create service type");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -54,7 +56,7 @@ public class ServiceTypeRepositoryImpl implements ServiceTypeRepository {
             ResultSet rs = preparedStatement.executeQuery();
             serviceTypes = mapServiceTypes(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'ServiceType'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all service types");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -72,7 +74,7 @@ public class ServiceTypeRepositoryImpl implements ServiceTypeRepository {
                 serviceType = mapServiceType(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'ServiceType'", e.getMessage());
+            LOGGER.error("SQL exception when try to find service type by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -89,7 +91,7 @@ public class ServiceTypeRepositoryImpl implements ServiceTypeRepository {
                 preparedStatement.setLong(2, serviceType.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'ServiceType'", e.getMessage());
+                LOGGER.error("SQL exception when try to update service type");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -106,7 +108,7 @@ public class ServiceTypeRepositoryImpl implements ServiceTypeRepository {
                 preparedStatement.setLong(1, serviceType.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'ServiceType'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete service types");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

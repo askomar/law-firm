@@ -1,15 +1,17 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.Paperwork;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PaperworkRepositoryImpl implements PaperworkRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(PaperworkRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final PaperworkRepositoryImpl INSTANCE = new PaperworkRepositoryImpl();
@@ -48,7 +50,7 @@ public class PaperworkRepositoryImpl implements PaperworkRepository {
                 paperwork.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'Paperwork'", e.getMessage());
+            LOGGER.error("SQL exception when try to create paperwork");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -62,7 +64,7 @@ public class PaperworkRepositoryImpl implements PaperworkRepository {
             ResultSet rs = preparedStatement.executeQuery();
             paperworks = mapPaperworks(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'Paperwork'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all paperworks");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -80,7 +82,7 @@ public class PaperworkRepositoryImpl implements PaperworkRepository {
                 paperwork = mapPaperwork(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'Paperwork'", e.getMessage());
+            LOGGER.error("SQL exception when try to find paperwork by id");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -102,7 +104,7 @@ public class PaperworkRepositoryImpl implements PaperworkRepository {
                 preparedStatement.setLong(7, paperwork.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'Paperwork'", e.getMessage());
+                LOGGER.error("SQL exception when try to update paperwork");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -119,7 +121,7 @@ public class PaperworkRepositoryImpl implements PaperworkRepository {
                 preparedStatement.setLong(1, paperwork.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'Paperwork'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete paperwork");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

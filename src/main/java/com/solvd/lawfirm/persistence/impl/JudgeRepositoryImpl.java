@@ -1,16 +1,18 @@
 package com.solvd.lawfirm.persistence.impl;
 
 import com.solvd.lawfirm.domain.Judge;
-import com.solvd.lawfirm.domain.exception.ProcessingException;
-import com.solvd.lawfirm.domain.exception.ResourceNotFoundException;
 import com.solvd.lawfirm.persistence.ConnectionPool;
 import com.solvd.lawfirm.persistence.JudgeRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JudgeRepositoryImpl implements JudgeRepository {
+
+    private static final Logger LOGGER = LogManager.getLogger(JudgeRepositoryImpl.class);
 
     private static final ConnectionPool CONNECTION_POOL = ConnectionPool.getInstance();
     private static final JudgeRepositoryImpl INSTANCE = new JudgeRepositoryImpl();
@@ -44,7 +46,7 @@ public class JudgeRepositoryImpl implements JudgeRepository {
                 judge.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
-            throw new ProcessingException("'create'", "'Judge'", e.getMessage());
+            LOGGER.error("SQL exception when try to create judge");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -58,7 +60,7 @@ public class JudgeRepositoryImpl implements JudgeRepository {
             ResultSet rs = preparedStatement.executeQuery();
             judges = mapJudges(rs);
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findAll'", "'Judge'", e.getMessage());
+            LOGGER.error("SQL exception when try to find all judges");
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -76,7 +78,8 @@ public class JudgeRepositoryImpl implements JudgeRepository {
                 judge = mapJudge(rs);
             }
         } catch (SQLException e) {
-            throw new ResourceNotFoundException("'findById'", "'Judge'", e.getMessage());
+            LOGGER.error("SQL exception when try to find judge by id");
+
         } finally {
             CONNECTION_POOL.releaseConnection(connection);
         }
@@ -97,7 +100,7 @@ public class JudgeRepositoryImpl implements JudgeRepository {
                 preparedStatement.setLong(6, judge.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'update'", "'Judge'", e.getMessage());
+                LOGGER.error("SQL exception when try to update judge");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }
@@ -114,7 +117,7 @@ public class JudgeRepositoryImpl implements JudgeRepository {
                 preparedStatement.setLong(1, judge.getId());
                 rows = preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new ProcessingException("'delete'", "'Judge'", e.getMessage());
+                LOGGER.error("SQL exception when try to delete judge");
             } finally {
                 CONNECTION_POOL.releaseConnection(connection);
             }

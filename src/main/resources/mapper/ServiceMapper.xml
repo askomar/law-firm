@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.lawfirm.persistence.ServiceRepository">
+    <sql id="serviceColumns">
+        service.id as service_id,
+        service.type_id as type_id,
+        service.lawyer_id as lawyer_id,
+        service.paperwork_id as paperwork_id,
+        service.cost as cost
+    </sql>
+
+    <insert
+            id="create"
+            keyColumn="id"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into Services (type_id, lawyer_id, paperwork_id, cost)
+        values ( #{type.id}, #{lawyer.id}, #{paperWork.id}, #{cost})
+    </insert>
+
+    <select id="findAll" resultMap="ServiceMap">
+        select
+        <include refid="serviceColumns"/>
+        from Services service
+        left join Lawyers lawyer
+        on
+        service.lawyer_id = lawyer.id
+        left join Paperworks paperwork
+        on
+        service.paperwork_id = paperwork.id
+        left join Service_types service_type
+        on
+        service.type_id = service_type.id;
+    </select>
+
+    <select id="findById"
+            parameterType="java.lang.Long"
+            resultMap="ServiceMap">
+        select
+        <include refid="serviceColumns"/>
+        from Services service
+        where service.id = #{id};
+    </select>
+
+    <update
+            id="update"
+            parameterType="Service">
+        update Services set
+        type_id = #{type.id},
+        lawyer_id = #{lawyer.id},
+        paperwork_id = #{paperWork.id},
+        cost = #{cost}
+        where id = #{id};
+    </update>
+
+    <delete id="delete"
+            parameterType="Service">
+        delete from Services where id = #{id};
+    </delete>
+
+    <resultMap id="ServiceMap" type="Service" autoMapping="false">
+        <id property="id" column="service_id"/>
+        <result column="cost" property="cost"/>
+        <association property="type" column="type_id"
+                     resultMap="com.solvd.lawfirm.persistence.ServiceTypeRepository.ServiceTypeMap"/>
+        <association property="lawyer" column="lawyer_id"
+                     resultMap="com.solvd.lawfirm.persistence.LawyerRepository.LawyerMap"/>
+        <association property="paperWork" column="paperwork_id"
+                     resultMap="com.solvd.lawfirm.persistence.PaperworkRepository.PaperworkMap"/>
+    </resultMap>
+</mapper>
