@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="service" parallel="methods" thread-count="5">
+    <test name="client-service">
+        <classes>
+            <class name="com.solvd.lawfirm.ClientServiceTest">
+                <methods>
+                    <include name="verifyClientsCreationTest"/>
+                    <include name="verifyClientCreationWithExceptionTest"/>
+                    <include name="verifyClientFindingByIdTest"/>
+                    <include name="verifyClientUpdatingTest"/>
+                    <include name="verifyClientDeletingTest"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <test name="client-folder-service">
+        <classes>
+            <class name="com.solvd.lawfirm.ClientFolderServiceTest">
+                <methods>
+                    <include name="verifyClientFolderCreationTest"/>
+                    <include name="verifyClientFolderFindingAllTest"/>
+                    <include name="verifyClientFolderFindingByIdTest"/>
+                    <include name="verifyClientFolderUpdatingTest"/>
+                    <include name="verifyClientFolderDeletingTest"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
